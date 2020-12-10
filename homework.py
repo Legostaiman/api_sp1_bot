@@ -4,6 +4,7 @@ import time
 import requests
 import telegram
 from dotenv import load_dotenv
+from requests import RequestException
 
 load_dotenv()
 
@@ -27,18 +28,18 @@ def parse_homework_status(homework):
 
 
 def get_homework_statuses(current_timestamp):
+
+    headers = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
+    from_date = current_timestamp
+    params = {'from_date': from_date}
     try:
-        headers = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
-        from_date = current_timestamp
-        params = {'from_date': from_date}
         request = requests.get(
             f'https://praktikum.yandex.ru/api/user_api/homework_statuses/?from_daate={from_date}',
             headers=headers, params=params).json()
-        return request
-    except Exception as e:  # Сделал так, надеюсь это допустимо. Если отправите
-        # мне какой-нибудь хороший материал о логгировании,
-        # то это будет оч здоровою
+    except RequestException as e:
         return f'В функции get_homework_statuses обнаружена ошибка {e}'
+    return request
+
 
 
 def send_message(message, bot_client):

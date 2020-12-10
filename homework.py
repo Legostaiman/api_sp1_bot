@@ -15,6 +15,8 @@ CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 def parse_homework_status(homework):
     homework_name = homework.get('homework_name')
     hw_status = homework.get('status')
+    if homework_name or hw_status is None:
+        return 'Данные из API не получены.'
     if hw_status != 'approved':
         verdict = 'К сожалению в работе нашлись ошибки.'
     else:
@@ -23,13 +25,18 @@ def parse_homework_status(homework):
 
 
 def get_homework_statuses(current_timestamp):
-    headers = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
-    from_date = current_timestamp
-    params = {'from_date': from_date}
-    request = requests.get(
-        f'https://praktikum.yandex.ru/api/user_api/homework_statuses/?from_daate={from_date}',
-        headers=headers, params=params).json()
-    return request
+    try:
+        headers = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
+        from_date = current_timestamp
+        params = {'from_date': from_date}
+        request = requests.get(
+            f'https://praktikum.yandex.ru/api/user_api/homework_statuses/?from_daate={from_date}',
+            headers=headers, params=params).json()
+        return request
+    except Exception as e:  # Сделал так, надеюсь это допустимо. Если отправите
+        # мне какой-нибудь хороший материал о логгировании,
+        # то это будет оч здоровою
+        return f'В функции get_homework_statuses обнаружена ошибка {e}'
 
 
 def send_message(message, bot_client):
@@ -37,7 +44,6 @@ def send_message(message, bot_client):
 
 
 def main():
-    # проинициализировать бота здесь
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())  # начальное значение timestamp
 
@@ -50,8 +56,10 @@ def main():
                     bot)
             current_timestamp = new_homework.get('current_date',
                                                  current_timestamp)
+            if current_timestamp is None:
+                current_timestamp = int(time.time())
             # обновить timestamp
-            time.sleep(1600)  # опрашивать раз в пять минут
+            time.sleep(1600)  # опрашивать раз в 20 минут
 
         except Exception as e:
             print(f'Бот столкнулся с ошибкой: {e}')

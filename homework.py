@@ -15,7 +15,9 @@ CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 def parse_homework_status(homework):
     homework_name = homework.get('homework_name')
     hw_status = homework.get('status')
-    if homework_name or hw_status is None:
+    if homework_name is None:
+        return 'Данные из API не получены.'
+    if hw_status is None:
         return 'Данные из API не получены.'
     if hw_status != 'approved':
         verdict = 'К сожалению в работе нашлись ошибки.'

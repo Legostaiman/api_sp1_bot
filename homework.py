@@ -51,7 +51,7 @@ def main():
             current_timestamp = new_homework.get('current_date',
                                                  current_timestamp)
             # обновить timestamp
-            time.sleep(300)  # опрашивать раз в пять минут
+            time.sleep(1600)  # опрашивать раз в пять минут
 
         except Exception as e:
             print(f'Бот столкнулся с ошибкой: {e}')
